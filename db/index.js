@@ -7,11 +7,65 @@ class DB {
     );
   }
 
+  employeesByDept() {
+    return this.connection.query(
+      "SELECT department.name AS department, employee.first_name, employee.last_name FROM department LEFT JOIN employee on employee "
+    )
+  }
+
+  employeesByRole() {
+    return this.connection.query(
+      
+    )
+  }
+
   findAllPossibleManagers(employeeId) {
     return this.connection.query(
       "SELECT id, first_name, last_name FROM employee WHERE id != ?",
       employeeId
     );
+  }
+
+  employeesByManager() {
+    return this.connection.query(
+      
+    )
+  }
+
+  addEmployee() {
+    return this.connection.query(
+      
+    )
+  }
+
+  deleteEmployee() {
+    return this.connection.query(
+      
+    )
+  }
+
+  updateRole() {
+    return this.connection.query(
+      
+    )
+  }
+
+  updateManager() {
+    return this.connection.query(
+      
+    )
+  }
+
+  addRole() {
+    return this.connection.query(
+      
+    )
+  }
+
+  addDepartment() {
+    return this.connection.query(
+      
+    )
   }
 }
 
