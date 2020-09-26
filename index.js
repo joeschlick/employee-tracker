@@ -1,4 +1,4 @@
-const DB = require("./db/index");
+const findAllEmployees = require("./db/index");
 const consoleTable = require("console.table");
 const inquirer = require("inquirer");
 
@@ -15,14 +15,12 @@ function appMenu() {
         message: "What would you like to do?",
         choices: [
           "View all employees",
-          "View all employees by Department",
-          "View all employees by Manager",
+          "View Departments",
+          "View Roles",
           "Add Employee",
-          "Remove Employee",
-          "Update Employee Role",
-          "Update Employee Manager",
-          "Add Role",
           "Add Department",
+          "Add Role",
+          "Update Employee Role",
           "Exit",
         ],
       },
@@ -30,22 +28,22 @@ function appMenu() {
     .then((introChoice) => {
       switch (introChoice.intro) {
         case "View all employees":
+            findAllEmployees()
           break;
-        case "View all employees by Department":
+        case "View Departments":
+            viewDepartment()
           break;
-        case "View all employees by Manager":
+        case "View Roles":
+            viewRoles()
           break;
         case "Add Employee":
+            getManagers()
           break;
-        case "Remove Employee":
-          break;
-        case "Update Employee Role":
-          break;
-        case "Update Employee Manager":
+        case "Add Department":
           break;
         case "Add Role":
           break;
-        case "Add Department":
+        case "Update Employee Role":
           break;
         case "Exit":
             process.exit();
