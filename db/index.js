@@ -1,72 +1,158 @@
-const connection = require("./connection");
+const connection1 = require("./connection");
+const connection = connection1.myConn();
+const inquirer = require("inquirer");
+//const consoleTable = require("console.table");
 
-class DB {
-  findAllEmployees() {
-    return this.connection.query(
-      "SELECT employee.id, employee.first_name, employee.last_name, role.title, department.name AS department, role.salary, CONCAT(manager.first_name, ' ', manager.last_name) AS manager FROM employee LEFT JOIN role on employee.role_id = role.id LEFT JOIN department on role.department_id = department.id LEFT JOIN employee manager on manager.id = employee.manager_id;"
-    );
-  }
+findAllEmployees = () => {
+  const query =
+    "SELECT employee.id, employee.first_name, employee.last_name, roles.title, department.dept_name AS department, roles.salary, CONCAT(manager.first_name, ' ', manager.last_name) AS manager FROM employee LEFT JOIN roles on employee.roles_id = roles.id LEFT JOIN department on roles.department_id = department.id LEFT JOIN employee manager on manager.id = employee.manager_id";
+  connection.query(query, function (err, result) {
+    if (err) throw err;
+    //resultsArray.push(result);
+    console.table(result);
+  });
+};
 
-  employeesByDept() {
-    return this.connection.query(
-      "SELECT department.name AS department, employee.first_name, employee.last_name FROM department LEFT JOIN employee on employee "
-    )
-  }
+viewDepartment = () => {
+  const query =
+    "SELECT department.dept_name AS department FROM department";
+  connection.query(query, function (err, result) {
+    if (err) throw err;
+    //resultsArray.push(result);
+    console.table(result);
+  });
+};
 
-  employeesByRole() {
-    return this.connection.query(
-      
-    )
-  }
+viewRoles = () => {
+  const query =
+    "SELECT roles.title AS roles, department.dept_name AS department, roles.salary FROM roles LEFT JOIN department on roles.department_id = department.id";
+  connection.query(query, function (err, result) {
+    if (err) throw err;
+    //resultsArray.push(result);
+    console.table(result);
+  });
+};
 
-  findAllPossibleManagers(employeeId) {
-    return this.connection.query(
-      "SELECT id, first_name, last_name FROM employee WHERE id != ?",
-      employeeId
-    );
-  }
+getRoles = () => {
+  const query = "SELECT title FROM roles";
+  let roles = [];
+  connection.query(query, function (err, result) {
+    if (err) throw err;
+    roles.push(result);
+    console.log(roles)
+  });
+};
 
-  employeesByManager() {
-    return this.connection.query(
-      
-    )
-  }
+getManagers = () => {
+  const query = "SELECT employee.first_name, employee.last_name FROM employee WHERE manager_id IS NULL";
+  let managers = [];
+  connection.query(query, function (err, result) {
+    if (err) throw err;
+    managers.push(result);
+    console.log(managers)
+    //I get an empty array
+  });
+};
 
-  addEmployee() {
-    return this.connection.query(
-      
-    )
-  }
+addEmployee = () => {
+  const query = "INSERT into employee (first_name, last_name, role_id, manager_id) VALUES (?,?,?,?)";
+  connection.query(nameQuery, function (err, result) {
+    if (err) throw err;
+    console.log(`Added employee ${employeeInfo.first_name} ${employeeInfo.last_name}.`);
+  });
 
-  deleteEmployee() {
-    return this.connection.query(
-      
-    )
-  }
+  inquirer.prompt([
+    {
+      type: "input",
+      name: "first_name",
+      message: "What is the employee's first name?",
+    },
+    {
+      type: "input",
+      name: "last_name",
+      message: "What is the employee's last name?",
+    },
+    {
+      type: "list",
+      message: "What is the employee's role?",
+      name: "role",
+      choices: [
+        // populate from db
+      ],
+    },
+    {
+      type: "list",
+      message: "Who is the employee's manager?",
+      name: "manager",
+      choices: [
+        // populate from db
+      ],
+    },
+  ])
+  .then((employeeInfo) => {
 
-  updateRole() {
-    return this.connection.query(
-      
-    )
-  }
+  })
+};
 
-  updateManager() {
-    return this.connection.query(
-      
-    )
-  }
+// employeesByDept() {
+//   return this.connection.query(
+//     "SELECT department.name AS department, employee.first_name, employee.last_name FROM department LEFT JOIN employee on employee "
+//   )
+// }
 
-  addRole() {
-    return this.connection.query(
-      
-    )
-  }
+// employeesByRole() {
+//   return this.connection.query(
 
-  addDepartment() {
-    return this.connection.query(
-      
-    )
-  }
-}
+//   )
+// }
 
-module.export = new DB();
+// findAllPossibleManagers(employeeId) {
+//   return this.connection.query(
+//     "SELECT id, first_name, last_name FROM employee WHERE id != ?",
+//     employeeId
+//   );
+// }
+
+// employeesByManager() {
+//   return this.connection.query(
+
+//   )
+// }
+
+// addEmployee() {
+//   return this.connection.query(
+
+//   )
+// }
+
+// deleteEmployee() {
+//   return this.connection.query(
+
+//   )
+// }
+
+// updateRole() {
+//   return this.connection.query(
+
+//   )
+// }
+
+// updateManager() {
+//   return this.connection.query(
+
+//   )
+// }
+
+// addRole() {
+//   return this.connection.query(
+
+//   )
+// }
+
+// addDepartment() {
+//   return this.connection.query(
+
+//   )
+// }
+
+module.exports = findAllEmployees;
