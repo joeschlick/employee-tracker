@@ -37,7 +37,7 @@ function appMenu() {
             viewRoles()
           break;
         case "Add Employee":
-            getManagers()
+            addEmployee()
           break;
         case "Add Department":
           break;
