@@ -38,30 +38,31 @@ getRoles = () => {
   let roles = [];
   connection.query(query, function (err, result) {
     if (err) throw err;
-    roles.push(result);
-    console.log(roles)
+    for (let i = 0; i < result.length; i++) {
+      roles.push(result[i].title);
+    }
+    //console.log(roles)
   });
+  return roles
 };
 
 getManagers = () => {
-  const query = "SELECT employee.first_name, employee.last_name FROM employee WHERE manager_id IS NULL";
+  const query = "SELECT employee.first_name, employee.last_name, CONCAT(employee.first_name, ' ', employee.last_name) AS manager FROM employee WHERE manager_id IS NULL";
   let managers = [];
   connection.query(query, function (err, result) {
     if (err) throw err;
-    managers.push(result);
-    console.log(managers)
-    //I get an empty array
+    for (let i = 0; i < result.length; i++) {
+      managers.push(result[i].manager);
+    }
+    //console.log(managers)
   });
+  return managers
 };
 
 addEmployee = () => {
-  const query = "INSERT into employee (first_name, last_name, role_id, manager_id) VALUES (?,?,?,?)";
-  connection.query(nameQuery, function (err, result) {
-    if (err) throw err;
-    console.log(`Added employee ${employeeInfo.first_name} ${employeeInfo.last_name}.`);
-  });
-
-  inquirer.prompt([
+  let roles = getRoles()
+  let manager = getManagers()
+    inquirer.prompt([
     {
       type: "input",
       name: "first_name",
@@ -76,20 +77,21 @@ addEmployee = () => {
       type: "list",
       message: "What is the employee's role?",
       name: "role",
-      choices: [
-        // populate from db
-      ],
+      choices: roles,
     },
     {
       type: "list",
       message: "Who is the employee's manager?",
       name: "manager",
-      choices: [
-        // populate from db
-      ],
+      choices: manager,
     },
   ])
   .then((employeeInfo) => {
+    const query = "INSERT into employee (first_name, last_name, role_id, manager_id) VALUES (?,?,?,?)";
+  connection.query(query, employeeInfo.first_name, employeeInfo.last_name, employeeInfo.role_id, employeeInfo.manager_id, function (err, result) {
+    if (err) throw err;
+    console.log(`Added employee ${employeeInfo.first_name} ${employeeInfo.last_name}.`);
+  });
 
   })
 };
