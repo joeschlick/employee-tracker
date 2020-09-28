@@ -88,7 +88,7 @@ addEmployee = () => {
   ])
   .then((employeeInfo) => {
     const query = "INSERT into employee (first_name, last_name, role_id, manager_id) VALUES (?,?,?,?)";
-  connection.query(query, employeeInfo.first_name, employeeInfo.last_name, employeeInfo.role_id, employeeInfo.manager_id, function (err, result) {
+  connection.query(query, employeeInfo.first_name, employeeInfo.last_name, employeeInfo.role_id, employeeInfomanager_id, function (err, result) {
     if (err) throw err;
     console.log(`Added employee ${employeeInfo.first_name} ${employeeInfo.last_name}.`);
   });

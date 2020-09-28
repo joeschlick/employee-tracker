@@ -52,12 +52,12 @@ VALUES
 INSERT INTO
   employee (first_name, last_name, roles_id, manager_id)
 VALUES
-  ('John', 'Johnson', '2', " "),
+  ('John', 'Johnson', '2', null),
   ('Spicy', 'Bautista', '1', "1"),
-  ('Chunky', 'Williams', '4', " "),
+  ('Chunky', 'Williams', '4', null),
   ('Wilma', 'Eric', '3', "3"),
   ('Charlie', 'Cooper', '5', "8"),
-  ('Dred', 'Scott', '8', " "),
+  ('Dred', 'Scott', '8', null),
   ('Chizzy', 'Wall', '7', "6"),
-  ('Roger', 'Chutia', '6', " "),
+  ('Roger', 'Chutia', '6', null),
   ('Biff', 'Thurston', '3', "3")
