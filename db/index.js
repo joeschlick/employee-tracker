@@ -68,12 +68,10 @@ getDepartments = () => {
     for (let i = 0; i < result.length; i++) {
       departments.push(result[i].department);
     }
-    console.log(departments)
+    //console.log(departments)
   });
   return departments
 };
-
-
 
 addEmployee = async () => {
   let roles = await getRoles()
@@ -137,6 +135,7 @@ addDepartment = () => {
 
 
 addRole = () => {
+  let department = getDepartments()
   inquirer.prompt([
     {
       type: "input",
@@ -149,11 +148,24 @@ addRole = () => {
       message: "What is the salary?",
     },
     {
-      type: "input",
+      type: "list",
       name: "department_id",
       message: "What department is it in?",
+      choices: department,
     },
   ])
+  .then((roleInfo) => {
+    const id = roleInfo.department_id.replace(/ .*/, '');
+    const newRole ={
+      title: roleInfo.title,
+      salary: roleInfo.salary,
+      department_id: id,
+    }
+    const query = "INSERT INTO roles SET ?";
+    connection.query(query, newRole)
+
+    console.log(`Added role ${roleInfo.title}`);
+  })
   
 
 }
