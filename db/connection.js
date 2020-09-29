@@ -13,6 +13,7 @@ let connection;
           database: "employee_db"
         });
         connection.connect();
+        connection.query = util.promisify(connection.query);
         console.log("connected as id " + connection.threadId);
         return connection;
     }
