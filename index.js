@@ -45,10 +45,15 @@ function appMenu() {
           break;
         case "Add Department":
           addDepartment()
+
           break;
         case "Add Role":
+          addRole()
+
           break;
         case "Update Employee Role":
+          updateRole()
+
           break;
         case "Exit":
             process.exit();
