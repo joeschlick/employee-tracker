@@ -32,32 +32,58 @@ viewRoles = () => {
   });
 };
 
+// getRoles = () => {
+//   const query = "SELECT id, title FROM roles";
+//   let roles = [];
+//   connection.query(query, function (err, result) {
+//     if (err) throw err;
+//     for (let i = 0; i < result.length; i++) {
+//       roles.push(`${result[i].id} ${result[i].title}`);
+//     }
+//     //console.log(roles)
+//   });
+//   return roles;
+// };
+
 getRoles = () => {
-  const query = "SELECT id, title FROM roles";
-  let roles = [];
-  connection.query(query, function (err, result) {
-    if (err) throw err;
-    for (let i = 0; i < result.length; i++) {
-      roles.push(`${result[i].id} ${result[i].title}`);
-    }
-    //console.log(roles)
-  });
-  return roles;
+  const query = "SELECT roles.id, roles.title, CONCAT(roles.id, ' ', roles.title) AS role FROM roles";
+  return connection.query(query)
 };
+
+// getManagers = () => {
+//   const query =
+//     "SELECT employee.id, employee.first_name, employee.last_name, CONCAT(employee.id, ' ', employee.first_name, ' ', employee.last_name) AS manager FROM employee WHERE manager_id IS NULL";
+//   let managers = [];
+//   connection.query(query, function (err, result) {
+//     if (err) throw err;
+//     for (let i = 0; i < result.length; i++) {
+//       managers.push(`${result[i].manager}`);
+//     }
+//     managers.push("null")
+//     //console.log(managers)
+//   });
+//   return managers;
+// };
 
 getManagers = () => {
   const query =
     "SELECT employee.id, employee.first_name, employee.last_name, CONCAT(employee.id, ' ', employee.first_name, ' ', employee.last_name) AS manager FROM employee WHERE manager_id IS NULL";
-  let managers = [];
+
+  return connection.query(query)
+}
+
+getDepartments = () => {
+  const query =
+    "SELECT department.id, dept_name, CONCAT(department.id, ' ', dept_name) AS department FROM department";
+  let departments = [];
   connection.query(query, function (err, result) {
     if (err) throw err;
     for (let i = 0; i < result.length; i++) {
-      managers.push(`${result[i].manager}`);
+      departments.push(`${result[i].department}`);
     }
-    managers.push("null")
-    //console.log(managers)
+    //console.log(departments)
   });
-  return managers;
+  return departments;
 };
 
 getEmployees = () => {
@@ -69,7 +95,7 @@ getEmployees = () => {
     for (let i = 0; i < result.length; i++) {
       employees.push(result[i].employee);
     }
-    console.log(employees)
+    //console.log(employees)
   });
   return employees;
 };
@@ -77,6 +103,19 @@ getEmployees = () => {
 addEmployee = async () => {
   let roles = await getRoles();
   let manager = await getManagers();
+  console.log(roles)
+
+let managerChoice = []
+  for (let i = 0; i < manager.length; i++) {
+    managerChoice.push(manager[i].manager);
+  }
+  managerChoice.push("null")
+
+  let roleChoice = []
+  for (let i = 0; i < roles.length; i++) {
+    roleChoice.push(roles[i].role);
+  }
+
   inquirer
     .prompt([
       {
@@ -93,14 +132,14 @@ addEmployee = async () => {
         type: "list",
         message: "What is the employee's role?",
         name: "roles_id",
-        choices: roles,
+        choices: roleChoice,
       },
 
       {
         type: "list",
         message: "Who is the employee's manager?",
         name: "manager_id",
-        choices: manager,
+        choices: managerChoice,
       },
     ])
     .then((employeeInfo) => {
@@ -180,8 +219,8 @@ updateRole = async () => {
     .prompt([
       {
         type: "list",
-        name: "employees",
         message: "Which employee role would you like to update?",
+        name: "employees",
         choices: employee,
       },
       {
@@ -202,6 +241,44 @@ updateRole = async () => {
 
 //const query = 'UPDATE employee SET role_id=? WHERE employee.first_name=? AND employee.last_name=?'
 
+updateRole = async () => {
+  // let employee = await getEmployees();
+  // console.log(employee)
+  // let roles = await getRoles();
+  // console.log(roles)
+  let roles = []
+  connection.query(query, function (err, result) {
+    if (err) throw err;
+    console.log("role:", result)
+    for (let i = 0; i < result.length; i++) {
+      roles.push(`${ result[ i ].id } ${ result[ i ].title }`);
+      // console.log("inside:", roles)
+    }
+    inquirer
+      .prompt([
+        {
+          type: "list",
+          name: "employees",
+          message: "Which employee role would you like to update?",
+          choices: employee,
+        },
+        {
+          type: "list",
+          name: "roles_id",
+          message: "What new role will the employee have?",
+          choices: roles,
+        },
+      ])
+      .then((roleInfo) => {
+        const id = roleInfo.roles_id.replace(/ .*/, "")
+        const query = "UPDATE employee SET role_id=? WHERE employee=?";
+        connection.query(query, id);
+
+        console.log(`Updated employee ${ employee } with role ${ roleInfo.title } `);
+      });
+
+    })
+}
 // addRole() {
 //   return this.connection.query(
 
