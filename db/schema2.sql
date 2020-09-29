@@ -8,11 +8,9 @@ CREATE TABLE department(
 );
 CREATE TABLE roles(
   id INT AUTO_INCREMENT,
+  title VARCHAR(30) NOT NULL,
+  salary decimal NOT NULL,
   department_id INT,
-  Title VARCHAR(30) NOT NULL,
-  Salary decimal NOT NULL,
-  manager_id int,
-  reports_to int,
   PRIMARY KEY(id),
   FOREIGN KEY (department_id) REFERENCES department(id)
 );
@@ -36,19 +34,17 @@ INSERT INTO
   roles (
     title,
     salary,
-    manager_id,
     department_id,
-    reports_to
   )
 VALUES
-  ('Salesperson', '80000', null, '1', '333'),
-  ('Sales Lead', '100000', '333', '1', null),
-  ('Software Engineer', '120000', null, '2', '444'),
-  ('Lead Engineer', '150000', '444', '2', null),
-  ('Accountant', '125000', null, '3', '555'),
-  ('Head Accountant', '150000', '555', '3', null),
-  ('Lawyer', '190000', null, '4', '777'),
-  ('Legal Team Lead', '250000', '777', '4', null);
+  ('Salesperson', '80000','1'),
+  ('Sales Lead', '100000', '1'),
+  ('Software Engineer', '120000', '2'),
+  ('Lead Engineer', '150000', '2'),
+  ('Accountant', '125000', '3'),
+  ('Head Accountant', '150000', '3'),
+  ('Lawyer', '190000', '4'),
+  ('Legal Team Lead', '250000', '4');
 INSERT INTO
   employee (first_name, last_name, roles_id, manager_id)
 VALUES
