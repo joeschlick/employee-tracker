@@ -29,17 +29,22 @@ function appMenu() {
       switch (introChoice.intro) {
         case "View all employees":
             findAllEmployees()
+            appMenu()
           break;
         case "View Departments":
             viewDepartment()
+            
           break;
         case "View Roles":
             viewRoles()
+            
           break;
         case "Add Employee":
             addEmployee()
+            
           break;
         case "Add Department":
+          addDepartment()
           break;
         case "Add Role":
           break;
