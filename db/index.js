@@ -34,12 +34,12 @@ viewRoles = () => {
 };
 
 getRoles = () => {
-  const query = "SELECT title FROM roles";
+  const query = "SELECT id, Title FROM roles";
   let roles = [];
   connection.query(query, function (err, result) {
     if (err) throw err;
     for (let i = 0; i < result.length; i++) {
-      roles.push(result[i].title);
+      roles.push(`${result[i].id} ${result[i].Title}`);
     }
     //console.log(roles)
   });
@@ -47,21 +47,21 @@ getRoles = () => {
 };
 
 getManagers = () => {
-  const query = "SELECT employee.first_name, employee.last_name, CONCAT(employee.first_name, ' ', employee.last_name) AS manager FROM employee WHERE manager_id IS NULL";
+  const query = "SELECT employee.id, employee.first_name, employee.last_name, CONCAT(employee.id, ' ', employee.first_name, ' ', employee.last_name) AS manager FROM employee WHERE manager_id IS NULL";
   let managers = [];
   connection.query(query, function (err, result) {
     if (err) throw err;
     for (let i = 0; i < result.length; i++) {
-      managers.push(result[i].manager);
+      managers.push(`${result[i].manager}`);
     }
     //console.log(managers)
   });
   return managers
 };
 
-addEmployee = () => {
-  let roles = getRoles()
-  let manager = getManagers()
+addEmployee = async () => {
+  let roles = await getRoles()
+  let manager = await getManagers()
     inquirer.prompt([
     {
       type: "input",
@@ -76,23 +76,30 @@ addEmployee = () => {
     {
       type: "list",
       message: "What is the employee's role?",
-      name: "role",
+      name: "roles_id",
       choices: roles,
     },
+
     {
       type: "list",
       message: "Who is the employee's manager?",
-      name: "manager",
+      name: "manager_id",
       choices: manager,
     },
   ])
-  .then((employeeInfo) => {
-    const query = "INSERT into employee (first_name, last_name, role_id, manager_id) VALUES (?,?,?,?)";
-  connection.query(query, employeeInfo.first_name, employeeInfo.last_name, employeeInfo.role_id, employeeInfomanager_id, function (err, result) {
-    if (err) throw err;
-    console.log(`Added employee ${employeeInfo.first_name} ${employeeInfo.last_name}.`);
-  });
+  .then( (employeeInfo) => {
+    const id = employeeInfo.roles_id.replace(/ .*/, '');
+    const mID = employeeInfo.manager_id.replace(/ .*/, '');
+    const newEmployee ={
+      first_name: employeeInfo.first_name,
+      last_name: employeeInfo.last_name,
+      roles_id: id,
+      manager_id: mID
+    }
+    const query = "INSERT INTO employee SET ?";
+    connection.query(query, newEmployee)
 
+    console.log(`Added employee ${employeeInfo.first_name} ${employeeInfo.last_name}.`);
   })
 };
 
