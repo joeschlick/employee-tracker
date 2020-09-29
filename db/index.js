@@ -10,6 +10,7 @@ findAllEmployees = () => {
     if (err) throw err;
     //resultsArray.push(result);
     console.table(result);
+    return
   });
 };
 
@@ -25,7 +26,7 @@ viewDepartment = () => {
 
 viewRoles = () => {
   const query =
-    "SELECT roles.title AS roles, department.dept_name AS department, roles.salary FROM roles LEFT JOIN department on roles.department_id = department.id";
+    "SELECT * FROM roles"
   connection.query(query, function (err, result) {
     if (err) throw err;
     //resultsArray.push(result);
@@ -34,7 +35,7 @@ viewRoles = () => {
 };
 
 getRoles = () => {
-  const query = "SELECT id, Title FROM roles";
+  const query = "SELECT id, title FROM roles";
   let roles = [];
   connection.query(query, function (err, result) {
     if (err) throw err;
@@ -58,6 +59,21 @@ getManagers = () => {
   });
   return managers
 };
+
+getDepartments = () => {
+  const query = "SELECT *, CONCAT (department.id, ' ', department.dept_name) AS department FROM department";
+  let departments = [];
+  connection.query(query, function (err, result) {
+    if (err) throw err;
+    for (let i = 0; i < result.length; i++) {
+      departments.push(result[i].department);
+    }
+    console.log(departments)
+  });
+  return departments
+};
+
+
 
 addEmployee = async () => {
   let roles = await getRoles()
@@ -103,54 +119,55 @@ addEmployee = async () => {
   })
 };
 
-// employeesByDept() {
-//   return this.connection.query(
-//     "SELECT department.name AS department, employee.first_name, employee.last_name FROM department LEFT JOIN employee on employee "
-//   )
-// }
+addDepartment = () => {
+  inquirer.prompt([
+    {
+      type: "input",
+      name: "dept_name",
+      message: "What department do you want to add?",
+    },
+  ])
+  .then((departmentInfo) => {
+    const query = "INSERT INTO department SET ?";
+    connection.query(query, departmentInfo)
 
-// employeesByRole() {
-//   return this.connection.query(
+    console.log(`Added department ${departmentInfo.dept_name}.`);
+  })
+}
 
-//   )
-// }
 
-// findAllPossibleManagers(employeeId) {
-//   return this.connection.query(
-//     "SELECT id, first_name, last_name FROM employee WHERE id != ?",
-//     employeeId
-//   );
-// }
+addRole = () => {
+  inquirer.prompt([
+    {
+      type: "input",
+      name: "title",
+      message: "What is the title of the role you want to add?",
+    },
+    {
+      type: "input",
+      name: "salary",
+      message: "What is the salary?",
+    },
+    {
+      type: "input",
+      name: "department_id",
+      message: "What department is it in?",
+    },
+  ])
+  
 
-// employeesByManager() {
-//   return this.connection.query(
+}
 
-//   )
-// }
+//addDepartment
 
-// addEmployee() {
-//   return this.connection.query(
 
-//   )
-// }
-
-// deleteEmployee() {
-//   return this.connection.query(
-
-//   )
-// }
 
 // updateRole() {
-//   return this.connection.query(
+//   return this.connection.query(const query = 'UPDATE employee SET role_id=? WHERE employee.first_name=? AND employee.last_name=?'
 
 //   )
 // }
 
-// updateManager() {
-//   return this.connection.query(
-
-//   )
-// }
 
 // addRole() {
 //   return this.connection.query(
