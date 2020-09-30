@@ -1,10 +1,10 @@
-//const findAllEmployees = require("./db/index");
+//const viewAllEmployees = require("./db/index");
 const consoleTable = require("console.table");
 const inquirer = require("inquirer");
 const connection1 = require("./db/connection");
 const connection = connection1.myConn();
 
-
+//Starts inquirer - main menu for app functions
 function appMenu() {
   inquirer
     .prompt([
@@ -27,47 +27,38 @@ function appMenu() {
     .then((introChoice) => {
       switch (introChoice.intro) {
         case "View all employees":
-          findAllEmployees();
-          // appMenu()
+          viewAllEmployees();
           break;
         case "View Departments":
           viewDepartment();
-
-          //console.log(introChoice.intro)
-          // appMenu()
           break;
         case "View Roles":
           viewRoles();
-          // appMenu()
           break;
         case "Add Employee":
           addEmployee();
-          //console.log(introChoice.intro)
           break;
-
         case "Add Department":
           addDepartment();
-          // appMenu()
           break;
         case "Add Role":
           addRole();
-          // appMenu()
           break;
         case "Update Employee Role":
           updateRole();
-          // appMenu()
           break;
         case "Exit":
           process.exit();
       }
     });
-}
-findAllEmployees = () => {
+};
+
+viewAllEmployees = () => {
   const query =
     "SELECT employee.id, employee.first_name, employee.last_name, roles.title, department.dept_name AS department, roles.salary, CONCAT(manager.first_name, ' ', manager.last_name) AS manager FROM employee LEFT JOIN roles on employee.roles_id = roles.id LEFT JOIN department on roles.department_id = department.id LEFT JOIN employee manager on manager.id = employee.manager_id";
   connection.query(query, function (err, result) {
     if (err) throw err;
-    //resultsArray.push(result);
+    console.log("\n");
     console.table(result);
   });
   appMenu();
@@ -77,7 +68,6 @@ viewDepartment = () => {
   const query = "SELECT department.dept_name AS department FROM department";
   connection.query(query, function (err, result) {
     if (err) throw err;
-    //resultsArray.push(result);
     console.log("\n");
     console.table(result);
   });
@@ -88,24 +78,11 @@ viewRoles = () => {
   const query = "SELECT * FROM roles";
   connection.query(query, function (err, result) {
     if (err) throw err;
-    //resultsArray.push(result);
+    console.log("\n");
     console.table(result);
   });
   appMenu();
 };
-
-// getRoles = () => {
-//   const query = "SELECT id, title FROM roles";
-//   let roles = [];
-//   connection.query(query, function (err, result) {
-//     if (err) throw err;
-//     for (let i = 0; i < result.length; i++) {
-//       roles.push(`${result[i].id} ${result[i].title}`);
-//     }
-//     //console.log(roles)
-//   });
-//   return roles;
-// };
 
 getRoles = () => {
   const query =
@@ -113,56 +90,31 @@ getRoles = () => {
   return connection.query(query);
 };
 
-// getManagers = () => {
-//   const query =
-//     "SELECT employee.id, employee.first_name, employee.last_name, CONCAT(employee.id, ' ', employee.first_name, ' ', employee.last_name) AS manager FROM employee WHERE manager_id IS NULL";
-//   let managers = [];
-//   connection.query(query, function (err, result) {
-//     if (err) throw err;
-//     for (let i = 0; i < result.length; i++) {
-//       managers.push(`${result[i].manager}`);
-//     }
-//     managers.push("null")
-//     //console.log(managers)
-//   });
-//   return managers;
-// };
-
 getManagers = () => {
   const query =
     "SELECT employee.id, employee.first_name, employee.last_name, CONCAT(employee.id, ' ', employee.first_name, ' ', employee.last_name) AS manager FROM employee WHERE manager_id IS NULL";
-
   return connection.query(query);
 };
 
 getDepartments = () => {
   const query =
     "SELECT department.id, dept_name, CONCAT(department.id, ' ', dept_name) AS department FROM department";
-  let departments = [];
-  connection.query(query, function (err, result) {
-    if (err) throw err;
-    for (let i = 0; i < result.length; i++) {
-      departments.push(`${result[i].department}`);
-    }
-    //console.log(departments)
-  });
-  return departments;
+    return connection.query(query);
+  // let departments = [];
+  // connection.query(query, function (err, result) {
+  //   if (err) throw err;
+  //   for (let i = 0; i < result.length; i++) {
+  //     departments.push(`${result[i].department}`);
+  //   }
+  //   //console.log(departments)
+  // });
+  // return departments;
 };
 
 getEmployees = () => {
   const query =
-    "SELECT employee.first_name, employee.last_name, CONCAT(employee.first_name, ' ', employee.last_name) AS employee FROM employee";
+    "SELECT employee.id, employee.first_name, employee.last_name, CONCAT(employee.id, ' ', employee.first_name, ' ', employee.last_name) AS employee FROM employee";
   return connection.query(query);
-
-  //   let employees = [];
-  // connection.query(query, function (err, result) {
-  //   if (err) throw err;
-  //   for (let i = 0; i < result.length; i++) {
-  //     employees.push(result[i].employee);
-  //   }
-  //   //console.log(employees)
-  // });
-  // return employees;
 };
 
 addEmployee = async () => {
@@ -200,7 +152,6 @@ addEmployee = async () => {
         name: "roles_id",
         choices: roleChoice,
       },
-
       {
         type: "list",
         message: "Who is the employee's manager?",
@@ -245,8 +196,15 @@ addDepartment = () => {
     });
 };
 
-addRole = () => {
-  let department = getDepartments();
+addRole = async () => {
+  let department = await getDepartments();
+  //console.log(department)
+
+  let departmentChoice = [];
+  for (let i = 0; i < department.length; i++) {
+    departmentChoice.push(department[i].department);
+  }
+
   inquirer
     .prompt([
       {
@@ -263,7 +221,7 @@ addRole = () => {
         type: "list",
         message: "What department is it in?",
         name: "department_id",
-        choices: department,
+        choices: departmentChoice,
       },
     ])
     .then((roleInfo) => {
@@ -311,10 +269,15 @@ updateRole = async () => {
       },
     ])
     .then((roleInfo) => {
-      //console.log(roleInfo)
+      console.log(roleInfo)
       const id = roleInfo.roles_id.replace(/ .*/, "");
-      const query = "UPDATE employee SET roles_id=?";
-      connection.query(query, id);
+      const empID = roleInfo.employees.replace(/ .*/, "");
+      const updatedEmployee = {
+        roles_id: id,
+        id:empID,
+      }
+      const query = "UPDATE employee roles_id ? WHERE id ?";
+      connection.query(query, updatedEmployee);
 
       console.log(
         `Updated employee ${roleInfo.employees} with role ${roleInfo.roles_id}`
