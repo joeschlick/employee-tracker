@@ -89,15 +89,17 @@ getDepartments = () => {
 getEmployees = () => {
   const query =
     "SELECT employee.first_name, employee.last_name, CONCAT(employee.first_name, ' ', employee.last_name) AS employee FROM employee";
-  let employees = [];
-  connection.query(query, function (err, result) {
-    if (err) throw err;
-    for (let i = 0; i < result.length; i++) {
-      employees.push(result[i].employee);
-    }
-    //console.log(employees)
-  });
-  return employees;
+  return connection.query(query)
+  
+  //   let employees = [];
+  // connection.query(query, function (err, result) {
+  //   if (err) throw err;
+  //   for (let i = 0; i < result.length; i++) {
+  //     employees.push(result[i].employee);
+  //   }
+  //   //console.log(employees)
+  // });
+  // return employees;
 };
 
 addEmployee = async () => {
@@ -215,70 +217,82 @@ addRole = () => {
 updateRole = async () => {
   let employee = await getEmployees();
   let roles = await getRoles();
+  console.log(employee)
+
+  let employeeChoice = []
+  for (let i = 0; i < employee.length; i++) {
+    employeeChoice.push(employee[i].employee);
+  }
+
+  let roleChoice = []
+  for (let i = 0; i < roles.length; i++) {
+    roleChoice.push(roles[i].role);
+  }
   inquirer
     .prompt([
       {
         type: "list",
         message: "Which employee role would you like to update?",
         name: "employees",
-        choices: employee,
+        choices: employeeChoice,
       },
       {
         type: "list",
         name: "roles_id",
         message: "What new role will the employee have?",
-        choices: roles,
+        choices: roleChoice,
       },
     ])
     .then((roleInfo) => {
+      console.log(roleInfo)
       const id = roleInfo.roles_id.replace(/ .*/, "")
-      const query = "UPDATE employee SET role_id=? WHERE employee=?";
+      const query = "UPDATE employee SET roles_id=?";
       connection.query(query, id);
 
-      console.log(`Updated employee ${employee} with role ${roleInfo.title} `);
+      console.log(`Updated employee ${roleInfo.employees} with role ${roleInfo.roles_id}`);
     });
 };
 
 //const query = 'UPDATE employee SET role_id=? WHERE employee.first_name=? AND employee.last_name=?'
 
-updateRole = async () => {
-  // let employee = await getEmployees();
-  // console.log(employee)
-  // let roles = await getRoles();
-  // console.log(roles)
-  let roles = []
-  connection.query(query, function (err, result) {
-    if (err) throw err;
-    console.log("role:", result)
-    for (let i = 0; i < result.length; i++) {
-      roles.push(`${ result[ i ].id } ${ result[ i ].title }`);
-      // console.log("inside:", roles)
-    }
-    inquirer
-      .prompt([
-        {
-          type: "list",
-          name: "employees",
-          message: "Which employee role would you like to update?",
-          choices: employee,
-        },
-        {
-          type: "list",
-          name: "roles_id",
-          message: "What new role will the employee have?",
-          choices: roles,
-        },
-      ])
-      .then((roleInfo) => {
-        const id = roleInfo.roles_id.replace(/ .*/, "")
-        const query = "UPDATE employee SET role_id=? WHERE employee=?";
-        connection.query(query, id);
+// updateRole = async () => {
+//   // let employee = await getEmployees();
+//   // console.log(employee)
+//   // let roles = await getRoles();
+//   // console.log(roles)
+//   let roles = []
+//   connection.query(query, function (err, result) {
+//     if (err) throw err;
+//     console.log("role:", result)
+//     for (let i = 0; i < result.length; i++) {
+//       roles.push(`${ result[ i ].id } ${ result[ i ].title }`);
+//       // console.log("inside:", roles)
+//     }
+//     inquirer
+//       .prompt([
+//         {
+//           type: "list",
+//           name: "employees",
+//           message: "Which employee role would you like to update?",
+//           choices: employee,
+//         },
+//         {
+//           type: "list",
+//           name: "roles_id",
+//           message: "What new role will the employee have?",
+//           choices: roles,
+//         },
+//       ])
+//       .then((roleInfo) => {
+//         const id = roleInfo.roles_id.replace(/ .*/, "")
+//         const query = "UPDATE employee SET role_id=? WHERE employee=?";
+//         connection.query(query, id);
 
-        console.log(`Updated employee ${ employee } with role ${ roleInfo.title } `);
-      });
+//         console.log(`Updated employee ${ employee } with role ${ roleInfo.title } `);
+//       });
 
-    })
-}
+//     })
+// }
 // addRole() {
 //   return this.connection.query(
 
