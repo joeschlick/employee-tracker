@@ -49,7 +49,7 @@ N/A
 
 ## Questions:
 
-If you have any questions about the repo, open an issue or contact [joeschlick](github.com) directly at schlickjoe@gmail.com.
+If you have any questions about the repo, open an issue or contact [joeschlick](https://github.com/joeschlick) directly at schlickjoe@gmail.com.
 
 ## Links:
 
