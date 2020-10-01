@@ -1,4 +1,4 @@
-//const viewAllEmployees = require("./db/index");
+//Dependencies
 const consoleTable = require("console.table");
 const inquirer = require("inquirer");
 const connection1 = require("./db/connection");
@@ -16,9 +16,9 @@ function appMenu() {
           "View all employees",
           "View Departments",
           "View Roles",
-          "Add Employee",
           "Add Department",
           "Add Role",
+          "Add Employee",
           "Update Employee Role",
           "Exit",
         ],
@@ -35,14 +35,14 @@ function appMenu() {
         case "View Roles":
           viewRoles();
           break;
-        case "Add Employee":
-          addEmployee();
-          break;
         case "Add Department":
           addDepartment();
           break;
         case "Add Role":
           addRole();
+          break;
+        case "Add Employee":
+          addEmployee();
           break;
         case "Update Employee Role":
           updateRole();
@@ -51,8 +51,9 @@ function appMenu() {
           process.exit();
       }
     });
-};
+}
 
+//Functions
 viewAllEmployees = () => {
   const query =
     "SELECT employee.id, employee.first_name, employee.last_name, roles.title, department.dept_name AS department, roles.salary, CONCAT(manager.first_name, ' ', manager.last_name) AS manager FROM employee LEFT JOIN roles on employee.roles_id = roles.id LEFT JOIN department on roles.department_id = department.id LEFT JOIN employee manager on manager.id = employee.manager_id";
@@ -84,6 +85,71 @@ viewRoles = () => {
   appMenu();
 };
 
+addDepartment = () => {
+  inquirer
+    .prompt([
+      {
+        type: "input",
+        name: "dept_name",
+        message: "What department do you want to add?",
+      },
+    ])
+    .then((departmentInfo) => {
+      const query = "INSERT INTO department SET ?";
+      connection.query(query, departmentInfo);
+
+      console.log(`Added department ${departmentInfo.dept_name}.`);
+      appMenu();
+    });
+};
+
+getDepartments = () => {
+  const query =
+    "SELECT department.id, dept_name, CONCAT(department.id, ' ', dept_name) AS department FROM department";
+  return connection.query(query);
+};
+
+addRole = async () => {
+  let department = await getDepartments();
+  let departmentChoice = [];
+  for (let i = 0; i < department.length; i++) {
+    departmentChoice.push(department[i].department);
+  }
+
+  inquirer
+    .prompt([
+      {
+        type: "input",
+        name: "title",
+        message: "What is the title of the role you want to add?",
+      },
+      {
+        type: "input",
+        name: "salary",
+        message: "What is the salary?",
+      },
+      {
+        type: "list",
+        message: "What department is it in?",
+        name: "department_id",
+        choices: departmentChoice,
+      },
+    ])
+    .then((roleInfo) => {
+      const id = roleInfo.department_id.replace(/ .*/, "");
+      const newRole = {
+        title: roleInfo.title,
+        salary: roleInfo.salary,
+        department_id: id,
+      };
+      const query = "INSERT INTO roles SET ?";
+      connection.query(query, newRole);
+
+      console.log(`Added role ${roleInfo.title}`);
+      appMenu();
+    });
+};
+
 getRoles = () => {
   const query =
     "SELECT roles.id, roles.title, CONCAT(roles.id, ' ', roles.title) AS role FROM roles";
@@ -93,27 +159,6 @@ getRoles = () => {
 getManagers = () => {
   const query =
     "SELECT employee.id, employee.first_name, employee.last_name, CONCAT(employee.id, ' ', employee.first_name, ' ', employee.last_name) AS manager FROM employee WHERE manager_id IS NULL";
-  return connection.query(query);
-};
-
-getDepartments = () => {
-  const query =
-    "SELECT department.id, dept_name, CONCAT(department.id, ' ', dept_name) AS department FROM department";
-    return connection.query(query);
-  // let departments = [];
-  // connection.query(query, function (err, result) {
-  //   if (err) throw err;
-  //   for (let i = 0; i < result.length; i++) {
-  //     departments.push(`${result[i].department}`);
-  //   }
-  //   //console.log(departments)
-  // });
-  // return departments;
-};
-
-getEmployees = () => {
-  const query =
-    "SELECT employee.id, employee.first_name, employee.last_name, CONCAT(employee.id, ' ', employee.first_name, ' ', employee.last_name) AS employee FROM employee";
   return connection.query(query);
 };
 
@@ -178,72 +223,16 @@ addEmployee = async () => {
     });
 };
 
-addDepartment = () => {
-  inquirer
-    .prompt([
-      {
-        type: "input",
-        name: "dept_name",
-        message: "What department do you want to add?",
-      },
-    ])
-    .then((departmentInfo) => {
-      const query = "INSERT INTO department SET ?";
-      connection.query(query, departmentInfo);
-
-      console.log(`Added department ${departmentInfo.dept_name}.`);
-      appMenu();
-    });
-};
-
-addRole = async () => {
-  let department = await getDepartments();
-  //console.log(department)
-
-  let departmentChoice = [];
-  for (let i = 0; i < department.length; i++) {
-    departmentChoice.push(department[i].department);
-  }
-
-  inquirer
-    .prompt([
-      {
-        type: "input",
-        name: "title",
-        message: "What is the title of the role you want to add?",
-      },
-      {
-        type: "input",
-        name: "salary",
-        message: "What is the salary?",
-      },
-      {
-        type: "list",
-        message: "What department is it in?",
-        name: "department_id",
-        choices: departmentChoice,
-      },
-    ])
-    .then((roleInfo) => {
-      const id = roleInfo.department_id.replace(/ .*/, "");
-      const newRole = {
-        title: roleInfo.title,
-        salary: roleInfo.salary,
-        department_id: id,
-      };
-      const query = "INSERT INTO roles SET ?";
-      connection.query(query, newRole);
-
-      console.log(`Added role ${roleInfo.title}`);
-      appMenu();
-    });
+getEmployees = () => {
+  const query =
+    "SELECT employee.id, employee.first_name, employee.last_name, CONCAT(employee.id, ' ', employee.first_name, ' ', employee.last_name) AS employee FROM employee";
+  return connection.query(query);
 };
 
 updateRole = async () => {
   let employee = await getEmployees();
   let roles = await getRoles();
-  console.log(employee);
-
+  
   let employeeChoice = [];
   for (let i = 0; i < employee.length; i++) {
     employeeChoice.push(employee[i].employee);
@@ -253,6 +242,7 @@ updateRole = async () => {
   for (let i = 0; i < roles.length; i++) {
     roleChoice.push(roles[i].role);
   }
+
   inquirer
     .prompt([
       {
@@ -269,16 +259,10 @@ updateRole = async () => {
       },
     ])
     .then((roleInfo) => {
-      console.log(roleInfo)
       const id = roleInfo.roles_id.replace(/ .*/, "");
       const empID = roleInfo.employees.replace(/ .*/, "");
-      const updatedEmployee = {
-        roles_id: id,
-        id:empID,
-      }
-      const query = "UPDATE employee roles_id ? WHERE id ?";
-      connection.query(query, updatedEmployee);
-
+      const query = "UPDATE employee SET roles_id = ? WHERE id = ?";
+      connection.query(query, [id, empID]);
       console.log(
         `Updated employee ${roleInfo.employees} with role ${roleInfo.roles_id}`
       );
